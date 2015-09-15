@@ -1,0 +1,6 @@
+#ignore backups
+*.bak
+[Ss]sl.backup/
+
+#ignore Database
+*.db
