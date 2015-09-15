@@ -180,7 +180,7 @@ ssl_ciphers \"ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AE
 server {
     listen 80;
     server_name ;
-    return 301 https://$server_name$request_uri;
+    return 301 https://\$server_name\$request_uri;
 }\n";
    file_put_contents(configPath, $content, LOCK_EX);
 }
