@@ -5,10 +5,10 @@ $(document).ready(function() {
         $('#pwhash').val(CryptoJS.SHA256($('#pwhash').val()));
     });
     $('#toggleDiv :input').attr('disabled', true);
-    $('#toggle').attr('checked', true);
+    //$('#toggle').attr('checked', true);
 });
 function toggle() {
-    if ($('#toggle').is(':checked')) {
+    if (!$('#toggle').is(':checked')) {
         $('#toggleDiv :input').attr('disabled', true);
     } else {
         $('#toggleDiv :input').removeAttr('disabled');

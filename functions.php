@@ -62,6 +62,7 @@ function readConfigFile()
    preg_match_all("/\bssl_certificate_key\b (.*?);/", $configContent, $sslKeyPath);
    preg_match_all("/\bproxy_pass https:\/\/127.0.0.1:\b(.*?);/", $configContent, $port);
 
+   $trash = array_shift($serverNames[1]);
    for($i=0; $i<sizeof($serverNames[1]); $i++)
    {
       $sslCert = "";
@@ -100,6 +101,7 @@ function writeConfigFile($domain, $port, $sslCert, $sslCertKey)
    writeCertFile($certPath, $keyPath, $sslCert, $sslCertKey);
    if(checkCert($certPath) && checkCert($keyPath))
    {
+      inputSSLRoute($domain, $file);
       $content = buildEntry($domain, $port, $certPath, $keyPath);
       file_put_contents($file, $content, FILE_APPEND | LOCK_EX);
       return TRUE;
@@ -120,6 +122,15 @@ function checkCert($filePath)
    } else {
       return FALSE;
    }
+}
+function inputSSLRoute($domain, $file)
+{
+   $fileContent = file($file);
+   $fp = fopen($file, "w+");
+   $newLine = substr_replace($fileContent[5], "", -2);
+   $fileContent[5] = "".$newLine . " " . $domain . ";\n";
+   fwrite($fp, implode($fileContent, ''));
+   fclose($fp);
 }
 function buildEntry($domain, $port, $certPath, $keyPath)
 {
@@ -165,7 +176,12 @@ function rewriteConfigFile()
 {
    $content = "#Disables all weak ciphers
 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-ssl_ciphers \"ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4\";\n";
+ssl_ciphers \"ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4\";
+server {
+    listen 80;
+    server_name ;
+    return 301 https://$server_name$request_uri;
+}\n";
    file_put_contents(configPath, $content, LOCK_EX);
 }
 function createBackup()
@@ -179,6 +195,9 @@ function createBackup()
 }
 function copyBackup($source, $target)
 {
+   rmFolder($target);
+   if(!file_exists($target))
+      @mkdir($target);
    if (!is_dir($source)) {//it is a file, do a normal copy
       copy($source, $target);
       return;
