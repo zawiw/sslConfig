@@ -71,17 +71,19 @@ function readConfigFile()
          $sslCert = file_get_contents($sslCertPath[1][$i]);
       if(file_exists($sslKeyPath[1][$i]))
          $sslKey = file_get_contents($sslKeyPath[1][$i]);
-      $results = "<div class=\"alterDomainElem\">
+      $results = "<div class=\"alterDomainElem\" id=\"alterDomainElem\">
+            <a href=\"javascript: expand('#expandDomainElem".$i."')\" class=\"fa fa-chevron-down\"> Details zu: ".$serverNames[1][$i]."</a>
+            <div id=\"expandDomainElem".$i."\" class=\"expandDomainElem\">
             <div><label for=\"alterDomain\">Domain:</label><input type=\"text\" name=\"alterDomain[]\", id=\"aalterDomain\" value=\"".$serverNames[1][$i]."\"/></div>
             <div><label for=\"alterPort\">Port:</label><input type=\"text\" name=\"alterPort[]\", id=\"alterPort\" value=\"".$port[1][$i]."\"/></div>
             <div><label for=\"alterCertPath\">SSL-Zertifikat:</label><input type=\"text\" name=\"alterCertPath[]\", id=\"alterCertPath\" value=\"".$sslCertPath[1][$i]."\"/>
-            <div><textarea rows=\"10\" cols=\"50\" name=\"altersslCert[]\", id=\"altersslCert\" >".$sslCert."</textarea></div>
+               <div><textarea rows=\"10\" cols=\"50\" name=\"altersslCert[]\", id=\"altersslCert\" >".$sslCert."</textarea></div>
             </div>
             <div><label for=\"alterKeyPath\">SSL-Key:</label><input type=\"text\" name=\"alterKeyPath[]\", id=\"alterKeyPath\" value=\"".$sslKeyPath[1][$i]."\"/>
-            <div><textarea rows=\"10\" cols=\"50\" name=\"altersslKey[]\", id=\"altersslKey\" >".$sslKey."</textarea></div>
+               <div><textarea rows=\"10\" cols=\"50\" name=\"altersslKey[]\", id=\"altersslKey\" >".$sslKey."</textarea></div>
             </div>
             <button class=\"removeBtn\" type=\"button\" onClick=\"removeParent(this)\" >Löschen</button>
-            <hr>
+            </div>
       </div>";
       echo $results;
    }
@@ -140,7 +142,7 @@ function buildEntry($domain, $port, $certPath, $keyPath)
     ssl_certificate ". $certPath .";
     ssl_certificate_key ". $keyPath .";
     location / {
-        proxy_pass https://127.0.0.1:". $port .";
+        proxy_pass http://127.0.0.1:". $port .";
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -155,12 +157,12 @@ function alterInput($altertmp, $i)
       case 0;
          rewriteConfigFile();
          if(!writeConfigFile($altertmp[0], $altertmp[1], $altertmp[3], $altertmp[5])) {
-            echo "<div class='error'>Fehler!!!!!!!111111elf</div>";
+            echo "<div class='error'>Fehler beim schreiben der Datei</div>";
          }
          break;
       default;
          if(!writeConfigFile($altertmp[0], $altertmp[1], $altertmp[3], $altertmp[5])) {
-            echo "<div class='success'>Fehler!!!!!!!111111elf</div>";
+            echo "<div class='success'>Fehler beim schreiben der Datei</div>";
          }
          break;
    }

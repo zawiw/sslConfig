@@ -169,3 +169,10 @@ th {
 	text-align: center;
 	border: 1px solid #DDD;
 }
+.expandDomainElem {
+	display: block;
+	overflow: hidden;
+	max-height: 0px;
+	transition: all 0.3s linear 0s;
+	padding-left: 20px;
+}
