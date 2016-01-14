@@ -4,3 +4,6 @@
 
 #ignore Database
 *.db
+
+#ignoreAvtiveDomainsfile
+[Aa]ctiveDomains

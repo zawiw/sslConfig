@@ -15,7 +15,7 @@ function toggle() {
     }
 }
 removeParent = function(e) {
-    $(e).parent().remove();
+    $(e).parents('div.alterDomainElem').remove();
 }
 function expand(elem)
 {
