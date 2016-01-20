@@ -34,7 +34,7 @@ if(isset($_SESSION['user']) && isset($_SESSION['sessionhash']) && userLoggedIn($
 	if($_SESSION['user'] == root)
 		require_once dirname( __FILE__ ) .'/rootlogin.php';
 }
-if((isset($_SESSION['user']) && userLoggedIn($_SESSION['user']) === FALSE) || !isset($_SESSION['user']))
+else
 {
    if(isset($_SESSION['user']) && userLoggedIn($_SESSION['user'])=== -1)
 		echo "<div class='warning'>Session Timeout</div>";

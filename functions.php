@@ -56,7 +56,7 @@ function userLoggedIn($user)
       return FALSE;
 }
 function restartNginx(){
-   shell_exec("service nginx reload");
+   shell_exec("sudo service nginx reload");
 }
 /**
 * reads apache-ssl file and prints content to page
@@ -69,10 +69,10 @@ function readConfigFile($boolPost)
    preg_match_all("/\bproxy_pass http:\/\/127.0.0.1:\b(.*?);/", $configContent, $port);
 
   # first entry is default and not needed any more
-  $trash = array_shift($serverNames[1]);
-  $trash = array_shift($port[1]);
+  #$trash = array_shift($serverNames[1]);
+  #$trash = array_shift($port[1]);
   #file with domains for cronjob
-  if($boolPost) {
+  if($boolPost)
     file_put_contents(domainFile, "", LOCK_EX);
 
   for($i=0; $i<sizeof($serverNames[1]); $i++)
@@ -101,6 +101,7 @@ function writeConfigFile($domain, $port)
 {
   #start letsencrypt Docker
   $output = shell_exec(preg_replace('/\[DOMAIN\]/', $domain, dockerCmd));
+  file_put_contents("error.log", $output);
   #check letsencrypt output and write apacheconf and apache-ssl
   if(preg_match('/Congratulations/', $output)) {
 
@@ -127,7 +128,7 @@ function writeRedirect($domain)
   $content = "server {
     listen 80;
     server_name ".$domain .";
-    return 301 https://\$server_name\$request_uri;
+    return 302 https://\$server_name\$request_uri;
 }\n";
 
   file_put_contents(apacheConf, $content, FILE_APPEND | LOCK_EX);
@@ -163,7 +164,7 @@ function alterInput($altertmp, $i)
   switch($i) {
     case 0:
        rewriteApacheSSL();
-       rewriteApacheConf();
+       #rewriteApacheConf();
        #TODO check inhalt von altertemp wegen config file und so !writeConfigFile($altertmp[0], $altertmp[1], $altertmp[3], $altertmp[5])
        if(!writeConfigFile($altertmp[0], $altertmp[1])) {
           echo "<div class='error'>Fehler beim schreiben der Datei</div>";
@@ -184,19 +185,7 @@ function rewriteApacheSSL()
   $content = "#Disables all weak ciphers
 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 ssl_ciphers \"ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4\";
-server {
-    listen 443 ssl;
-    server_name ~^(?<domain>.*)\$;
-    ssl_certificate /export/prod/www/ssl/~^(?<domain>.*)\$/nginx-cert.pem;
-    ssl_certificate_key /export/prod/www/ssl/~^(?<domain>.*)\$/key.pem;
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}\n";
+\n";
    file_put_contents(apacheSSL, $content, LOCK_EX);
 }
 /**

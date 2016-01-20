@@ -15,10 +15,11 @@ if(isset($_POST['domain']) && isset($_POST['port']))
       $boolPost = False;
    }else{
       $boolPost = True;
-      if(writeConfigFile($_POST['domain'], $_POST['port']))
+      if(writeConfigFile($_POST['domain'], $_POST['port']) === TRUE)
       {
          echo "<div class='success'>Registrierung erfolgreich</div>";
          restartNginx();
+	 sleep(2);
          header('Location:'.$_SERVER['PHP_SELF']);
       } else {
          echo "<div class='error'>Registrierung fehlgeschlagen. Datei nicht gefunden</div>";
